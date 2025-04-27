@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { User, Note, Event, Task, Message, StudyGroup, Post } from "../lib/types";
+import { User, Note, Event, Task, Message, StudyGroup, Post, TimerSession } from "../lib/types";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import { DEFAULT_USER, SAMPLE_NOTES, SAMPLE_EVENTS, SAMPLE_TASKS, SAMPLE_MESSAGES, SAMPLE_STUDY_GROUPS, SAMPLE_POSTS } from "../lib/constants";
+import { DEFAULT_USER, SAMPLE_NOTES, SAMPLE_EVENTS, SAMPLE_TASKS, SAMPLE_MESSAGES, SAMPLE_STUDY_GROUPS, SAMPLE_POSTS, SAMPLE_TIMER_SESSIONS } from "../lib/constants";
 
 interface AppContextProps {
   currentUser: User;
