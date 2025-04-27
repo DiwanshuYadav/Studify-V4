@@ -20,8 +20,11 @@ const Notes = () => {
     content: '',
     subject: '',
     attachments: 0,
-    sharedWith: 0
+    sharedWith: 0,
+    files: [] as File[]
   });
+  const [courseFilter, setCourseFilter] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setNewNote({

@@ -2,7 +2,7 @@ import { useLocation, Link } from "wouter";
 import { useAppContext } from "../context/AppContext";
 
 const Sidebar = () => {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { currentUser } = useAppContext();
 
   const isActive = (path: string) => {
@@ -22,48 +22,48 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-2">
         <Link href="/">
-          <a className={`sidebar-link ${isActive("/") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
+          <div className={`sidebar-link ${isActive("/") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
             <i className="fa-solid fa-home text-lg"></i>
             <span className="ml-3 hidden md:block font-medium">Dashboard</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/notes">
-          <a className={`sidebar-link ${isActive("/notes") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
+          <div className={`sidebar-link ${isActive("/notes") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
             <i className="fa-solid fa-note-sticky text-lg"></i>
             <span className="ml-3 hidden md:block font-medium">Notes</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/timer">
-          <a className={`sidebar-link ${isActive("/timer") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
+          <div className={`sidebar-link ${isActive("/timer") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
             <i className="fa-solid fa-clock text-lg"></i>
             <span className="ml-3 hidden md:block font-medium">Study Timer</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/schedule">
-          <a className={`sidebar-link ${isActive("/schedule") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
+          <div className={`sidebar-link ${isActive("/schedule") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
             <i className="fa-solid fa-calendar text-lg"></i>
             <span className="ml-3 hidden md:block font-medium">Schedule</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/community">
-          <a className={`sidebar-link ${isActive("/community") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
+          <div className={`sidebar-link ${isActive("/community") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
             <i className="fa-solid fa-users text-lg"></i>
             <span className="ml-3 hidden md:block font-medium">Community</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/messages">
-          <a className={`sidebar-link ${isActive("/messages") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
+          <div className={`sidebar-link ${isActive("/messages") ? "sidebar-link-active" : "sidebar-link-inactive"} mb-1`}>
             <i className="fa-solid fa-comment text-lg"></i>
             <span className="ml-3 hidden md:block font-medium">Messages</span>
             <span className="ml-auto hidden md:flex bg-secondary text-white text-xs rounded-full h-5 min-w-[20px] items-center justify-center px-1">
               {3}
             </span>
-          </a>
+          </div>
         </Link>
       </nav>
       
@@ -79,9 +79,14 @@ const Sidebar = () => {
             <p className="text-sm font-medium">{currentUser.name}</p>
             <p className="text-xs text-gray-500">{currentUser.major}</p>
           </div>
-          <button className="ml-auto hidden md:block text-gray-400 hover:text-gray-500">
-            <i className="fa-solid fa-ellipsis-vertical"></i>
-          </button>
+          <div className="relative ml-auto hidden md:block">
+            <button 
+              className="text-gray-400 hover:text-gray-500"
+              onClick={() => navigate('/profile')}
+            >
+              <i className="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+          </div>
         </div>
       </div>
     </aside>

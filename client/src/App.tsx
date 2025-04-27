@@ -11,6 +11,7 @@ import Timer from "./pages/Timer";
 import Schedule from "./pages/Schedule";
 import Community from "./pages/Community";
 import Messages from "./pages/Messages";
+import Profile from "./pages/Profile";
 import ErrorBoundary from "./components/ErrorBoundary";
 import FloatingChat from "./components/chat/FloatingChat";
 import { AppProvider } from "./context/AppContext";
@@ -51,6 +52,11 @@ function Router() {
           <Route path="/messages">
             <ErrorBoundary>
               <Messages />
+            </ErrorBoundary>
+          </Route>
+          <Route path="/profile">
+            <ErrorBoundary>
+              <Profile />
             </ErrorBoundary>
           </Route>
           <Route>
