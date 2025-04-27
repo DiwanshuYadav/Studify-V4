@@ -19,10 +19,11 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   const { toast } = useToast();
   const { addTask, currentUser } = useAppContext();
   
+  // Timer modes with shorter durations for testing
   const timerModes: TimerMode[] = [
-    { name: 'shortBreak', label: 'Short Break', duration: 5 * 60, color: 'hover:bg-blue-50 hover:text-secondary' },
-    { name: 'focus', label: 'Focus', duration: 25 * 60, color: 'bg-blue-50 text-secondary' },
-    { name: 'longBreak', label: 'Long Break', duration: 15 * 60, color: 'hover:bg-blue-50 hover:text-secondary' },
+    { name: 'shortBreak', label: 'Short Break', duration: 10, color: 'hover:bg-blue-50 hover:text-secondary' },
+    { name: 'focus', label: 'Focus', duration: 20, color: 'bg-blue-50 text-secondary' },
+    { name: 'longBreak', label: 'Long Break', duration: 15, color: 'hover:bg-blue-50 hover:text-secondary' },
   ];
   
   const [activeMode, setActiveMode] = useState<TimerMode>(timerModes[1]);
@@ -46,26 +47,38 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   // When timer updates, calculate progress
   useEffect(() => {
     // Update progress based on time left - reverse the calculation to show correct visual progress
-    const progressValue = circumference - ((timeLeft / activeMode.duration) * circumference);
-    setProgress(progressValue);
-    
-    // Clean up interval on unmount
+    if (timeLeft !== undefined && activeMode.duration !== undefined) {
+      const progressValue = circumference - ((timeLeft / activeMode.duration) * circumference);
+      setProgress(progressValue);
+    }
+  }, [timeLeft, activeMode.duration, circumference]);
+  
+  // Clean up on unmount
+  useEffect(() => {
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, [timeLeft, activeMode, circumference]);
+  }, []);
   
   // Reset timer when mode changes
   useEffect(() => {
     resetTimer();
   }, [activeMode]);
   
+  // When active mode changes, update the timer
+  useEffect(() => {
+    // Update the timeLeft when activeMode changes
+    if (!isActive) {
+      setTimeLeft(activeMode.duration);
+    }
+  }, [activeMode, isActive]);
+
   // Handle automatic transition between modes
   useEffect(() => {
-    // If timer reaches zero, automatically transition to the next mode
-    if (timeLeft === 0) {
+    // Only proceed if timer is at 0 and not active
+    if (timeLeft === 0 && !isActive) {
       // Record completed session
       if (sessionStartTime) {
         const duration = Math.floor((new Date().getTime() - sessionStartTime.getTime()) / 1000);
@@ -82,12 +95,16 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
       }
 
       // Wait a bit to ensure UI updates before changing modes
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         if (activeMode.name === 'focus') {
           // After focus, go to short break
-          currentSession < 3 
-            ? handleModeChange(timerModes[0])  // Short break
-            : handleModeChange(timerModes[2]); // Long break after 4 focus sessions
+          const nextMode = currentSession < 3 
+            ? timerModes[0]  // Short break
+            : timerModes[2]; // Long break after 4 focus sessions
+          
+          // Set the next mode
+          setActiveMode(nextMode);
+          setTimeLeft(nextMode.duration);
           
           // Increment session counter
           setCurrentSession(prev => prev + 1);
@@ -103,7 +120,9 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
           }
         } else {
           // After break, go back to focus
-          handleModeChange(timerModes[1]);
+          const focusMode = timerModes[1];
+          setActiveMode(focusMode);
+          setTimeLeft(focusMode.duration);
           
           // Check if we should end the entire study session (after 4 focus sessions)
           if (activeMode.name === 'longBreak') {
@@ -125,9 +144,11 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
             });
           }
         }
-      }, 500);
+      }, 1000);
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [timeLeft, activeMode, currentSession, focusTask, onSessionComplete, sessionStartTime, totalSessionTime, timerModes]);
+  }, [timeLeft, isActive, activeMode, currentSession, focusTask, onSessionComplete, sessionStartTime, totalSessionTime, timerModes, addTask]);
   
   const startTimer = () => {
     if (!isActive) {
@@ -141,16 +162,15 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
       // Clear any existing interval
       if (timerRef.current) {
         clearInterval(timerRef.current);
+        timerRef.current = null;
       }
       
-      timerRef.current = window.setInterval(() => {
+      // Create new interval
+      const intervalId = window.setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
             // Clear the interval
-            if (timerRef.current) {
-              clearInterval(timerRef.current);
-              timerRef.current = null;
-            }
+            clearInterval(intervalId);
             
             setIsActive(false);
             
@@ -166,6 +186,9 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
           return prevTime - 1;
         });
       }, 1000);
+      
+      // Save reference to the interval
+      timerRef.current = intervalId;
     }
   };
   
