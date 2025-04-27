@@ -359,6 +359,7 @@ export const insertMessageSchema = createInsertSchema(messages).pick({
   senderId: true,
   receiverId: true,
   content: true,
+  timestamp: true,
   status: true,
   isRead: true,
   attachmentUrl: true,
