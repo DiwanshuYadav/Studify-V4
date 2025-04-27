@@ -24,8 +24,11 @@ export const users = pgTable("users", {
   following: json("following").default([]),
   settings: json("settings").default({
     theme: 'light',
-    notifications: true,
-    privacy: 'public'
+    notificationsEnabled: true,
+    soundsEnabled: true,
+    autoJoinCalls: false,
+    privacy: 'public',
+    fontSize: 'medium'
   }),
   lastActiveAt: timestamp("last_active_at").defaultNow(),
 });

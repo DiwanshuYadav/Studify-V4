@@ -10,6 +10,7 @@ export interface User {
   createdAt: string;
   followers: number[];
   following: number[];
+  settings: ClientSettings;
 }
 
 // Note Types
@@ -107,4 +108,62 @@ export interface StudyStats {
   totalSessions: number;
   completedTasks: number;
   notesCreated: number;
+}
+
+// WebSocket types
+export interface WSMessage {
+  type: string;
+  payload: any;
+}
+
+export interface VideoCallSession {
+  sessionId: string;
+  callerId: number;
+  callerName: string;
+  recipientId: number;
+  recipientName?: string;
+  status: 'requesting' | 'accepted' | 'rejected' | 'ongoing' | 'ended';
+  startTime: Date;
+  endTime?: Date;
+}
+
+export interface ChatSession {
+  userId: number;
+  username: string;
+  isOnline: boolean;
+  isTyping: boolean;
+  lastTypingTime?: Date;
+  unreadCount: number;
+  lastMessageTime?: Date;
+}
+
+export interface MessageWithStatus extends Message {
+  status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+}
+
+export interface UserWithStatus extends User {
+  isOnline: boolean;
+  lastSeen?: string;
+}
+
+export interface ClientSettings {
+  theme: 'light' | 'dark' | 'system';
+  notificationsEnabled: boolean;
+  soundsEnabled: boolean;
+  autoJoinCalls: boolean;
+  privacy: 'public' | 'private' | 'friends';
+  fontSize: 'small' | 'medium' | 'large';
+}
+
+export interface Notification {
+  id: number;
+  userId: number;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+  linkTo?: string;
+  sourceId?: number;
+  sourceType?: string;
 }
