@@ -2,13 +2,49 @@ import { useState } from 'react';
 import Header from '../components/Header';
 import { useAppContext } from '../context/AppContext';
 import NoteCard from '../components/notes/NoteCard';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Helper function to determine icon based on file extension
+const getFileIcon = (filename: string): string => {
+  const extension = filename.split('.').pop()?.toLowerCase() || '';
+  
+  switch (extension) {
+    case 'pdf':
+      return 'file-pdf';
+    case 'doc':
+    case 'docx':
+      return 'file-word';
+    case 'xls':
+    case 'xlsx':
+      return 'file-excel';
+    case 'ppt':
+    case 'pptx':
+      return 'file-powerpoint';
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+    case 'gif':
+      return 'file-image';
+    case 'mp4':
+    case 'avi':
+    case 'mov':
+      return 'file-video';
+    case 'mp3':
+    case 'wav':
+      return 'file-audio';
+    case 'zip':
+    case 'rar':
+      return 'file-archive';
+    default:
+      return 'file';
+  }
+};
 
 const Notes = () => {
   const { notes, addNote } = useAppContext();
@@ -40,13 +76,38 @@ const Notes = () => {
     });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesList = Array.from(e.target.files);
+      setNewNote(prev => ({
+        ...prev,
+        files: [...prev.files, ...filesList],
+        attachments: prev.files.length + filesList.length
+      }));
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setNewNote(prev => {
+      const updatedFiles = [...prev.files];
+      updatedFiles.splice(index, 1);
+      return {
+        ...prev,
+        files: updatedFiles,
+        attachments: updatedFiles.length
+      };
+    });
+  };
+
   const handleCreateNote = () => {
     if (newNote.title.trim() && newNote.content.trim() && newNote.subject) {
+      // In a real application, we would upload files to a server and store references
+      // For now, we'll just use the count of files
       addNote({
         title: newNote.title,
         content: newNote.content,
         subject: newNote.subject,
-        attachments: 0,
+        attachments: newNote.files.length,
         sharedWith: 0
       });
       
@@ -55,9 +116,11 @@ const Notes = () => {
         content: '',
         subject: '',
         attachments: 0,
-        sharedWith: 0
+        sharedWith: 0,
+        files: []
       });
       
+      setSelectedFile(null);
       setIsCreateModalOpen(false);
     }
   };
@@ -156,6 +219,9 @@ const Notes = () => {
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle className="text-xl">Create New Note</DialogTitle>
+            <DialogDescription>
+              Create your note with attachments. All files will be available to download later.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -195,6 +261,55 @@ const Notes = () => {
                 placeholder="Write your note content here..."
                 className="min-h-[150px]"
               />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label>Attachments</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-all cursor-pointer">
+                <input
+                  type="file"
+                  id="file-upload"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center">
+                    <i className="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-2"></i>
+                    <p className="text-sm font-medium">Drag files here or click to upload</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Support for PDF, Word, images, and more
+                    </p>
+                  </div>
+                </label>
+              </div>
+              
+              {/* File List */}
+              {newNote.files.length > 0 && (
+                <div className="mt-2">
+                  <h4 className="text-sm font-medium mb-2">Uploaded Files ({newNote.files.length})</h4>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {newNote.files.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                        <div className="flex items-center">
+                          <i className={`fa-solid fa-${getFileIcon(file.name)} text-gray-400 mr-2`}></i>
+                          <div>
+                            <p className="text-sm font-medium truncate max-w-[150px]">{file.name}</p>
+                            <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(index)}
+                          className="text-gray-400 hover:text-red-500"
+                        >
+                          <i className="fa-solid fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
