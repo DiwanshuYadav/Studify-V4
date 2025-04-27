@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Header from '../components/Header';
 import { useAppContext } from '../context/AppContext';
+import { Event } from '../lib/types';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,10 +10,17 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
 const Schedule = () => {
-  const { events, addEvent, deleteEvent } = useAppContext();
+  const { events, addEvent, updateEvent, deleteEvent } = useAppContext();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [newEvent, setNewEvent] = useState({
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [newEvent, setNewEvent] = useState<{
+    title: string;
+    start: string;
+    end: string;
+    type: 'lecture' | 'studyGroup' | 'assignment' | 'meeting' | 'exam';
+  }>({
     title: '',
     start: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     end: '',
@@ -20,10 +28,37 @@ const Schedule = () => {
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setNewEvent({
-      ...newEvent,
-      [e.target.name]: e.target.value
-    });
+    if (e.target.name === 'type') {
+      // Handle type separately with proper type assertion
+      const eventType = e.target.value as 'lecture' | 'studyGroup' | 'assignment' | 'meeting' | 'exam';
+      setNewEvent({
+        ...newEvent,
+        type: eventType
+      });
+    } else {
+      setNewEvent({
+        ...newEvent,
+        [e.target.name]: e.target.value
+      });
+    }
+  };
+  
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (selectedEvent) {
+      if (e.target.name === 'type') {
+        // Handle type separately with proper type assertion
+        const eventType = e.target.value as 'lecture' | 'studyGroup' | 'assignment' | 'meeting' | 'exam';
+        setSelectedEvent({
+          ...selectedEvent,
+          type: eventType
+        });
+      } else {
+        setSelectedEvent({
+          ...selectedEvent,
+          [e.target.name]: e.target.value
+        });
+      }
+    }
   };
 
   const handleCreateEvent = () => {
