@@ -56,6 +56,11 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
     }
   ]);
   
+  // Calculate unread notification count
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(
+    notifications.filter(notification => !notification.read).length
+  );
+  
   const { notes, events, tasks, currentUser } = useAppContext();
   const { toast } = useToast();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -161,9 +166,11 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
       ...notification,
       read: true
     })));
+    setUnreadNotificationsCount(0);
   };
-  
-  const unreadNotificationsCount = notifications.filter(n => !n.read).length;
+
+  // We don't need an additional useEffect since we're already handling counts in 
+  // the click handlers and the markAllAsRead function
 
   return (
     <>
@@ -266,11 +273,11 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                               onClick={() => {
                                 // Update unread notification count
                                 if (!notification.read) {
-                                  setUnreadNotificationsCount(prev => Math.max(0, prev - 1));
+                                  setUnreadNotificationsCount((prev: number) => Math.max(0, prev - 1));
                                 }
                                 
                                 // Mark notification as read
-                                setNotifications(prev => 
+                                setNotifications((prev: NotificationItem[]) => 
                                   prev.map(n => n.id === notification.id ? {...n, read: true} : n)
                                 );
                               }}
