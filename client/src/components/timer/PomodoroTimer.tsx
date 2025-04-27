@@ -65,7 +65,7 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   // Handle automatic transition between modes
   useEffect(() => {
     // If timer reaches zero, automatically transition to the next mode
-    if (timeLeft === 0 && !isActive) {
+    if (timeLeft === 0) {
       // Record completed session
       if (sessionStartTime) {
         const duration = Math.floor((new Date().getTime() - sessionStartTime.getTime()) / 1000);
@@ -80,51 +80,54 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
         // Reset session start time
         setSessionStartTime(null);
       }
-      
-      if (activeMode.name === 'focus') {
-        // After focus, go to short break
-        currentSession < 3 
-          ? handleModeChange(timerModes[0])  // Short break
-          : handleModeChange(timerModes[2]); // Long break after 4 focus sessions
-        
-        // Increment session counter
-        setCurrentSession(prev => prev + 1);
-        
-        // Create a task record if there was a focus task
-        if (focusTask.trim()) {
-          addTask({
-            title: focusTask,
-            completed: true,
-            dueDate: new Date().toISOString()
-          });
-          setFocusTask('');
-        }
-      } else {
-        // After break, go back to focus
-        handleModeChange(timerModes[1]);
-        
-        // Check if we should end the entire study session (after 4 focus sessions)
-        if (activeMode.name === 'longBreak') {
-          // End the study session
-          if (onSessionComplete) {
-            onSessionComplete(totalSessionTime);
+
+      // Wait a bit to ensure UI updates before changing modes
+      setTimeout(() => {
+        if (activeMode.name === 'focus') {
+          // After focus, go to short break
+          currentSession < 3 
+            ? handleModeChange(timerModes[0])  // Short break
+            : handleModeChange(timerModes[2]); // Long break after 4 focus sessions
+          
+          // Increment session counter
+          setCurrentSession(prev => prev + 1);
+          
+          // Create a task record if there was a focus task
+          if (focusTask.trim()) {
+            addTask({
+              title: focusTask,
+              completed: true,
+              dueDate: new Date().toISOString()
+            });
+            setFocusTask('');
           }
+        } else {
+          // After break, go back to focus
+          handleModeChange(timerModes[1]);
           
-          // Show the start studying button again
-          setShowStartStudying(true);
-          
-          // Reset session counter
-          setCurrentSession(0);
-          
-          toast({
-            title: "Study Session Complete!",
-            description: `Great job! You've completed your study session.`,
-            duration: 5000,
-          });
+          // Check if we should end the entire study session (after 4 focus sessions)
+          if (activeMode.name === 'longBreak') {
+            // End the study session
+            if (onSessionComplete) {
+              onSessionComplete(totalSessionTime);
+            }
+            
+            // Show the start studying button again
+            setShowStartStudying(true);
+            
+            // Reset session counter
+            setCurrentSession(0);
+            
+            toast({
+              title: "Study Session Complete!",
+              description: `Great job! You've completed your study session.`,
+              duration: 5000,
+            });
+          }
         }
-      }
+      }, 500);
     }
-  }, [timeLeft, isActive, activeMode, currentSession, focusTask, onSessionComplete, sessionStartTime, totalSessionTime]);
+  }, [timeLeft, activeMode, currentSession, focusTask, onSessionComplete, sessionStartTime, totalSessionTime, timerModes]);
   
   const startTimer = () => {
     if (!isActive) {
@@ -135,11 +138,20 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
         setSessionStartTime(new Date());
       }
       
+      // Clear any existing interval
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      
       timerRef.current = window.setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
-            clearInterval(timerRef.current!);
-            timerRef.current = null;
+            // Clear the interval
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            
             setIsActive(false);
             
             // Show toast notification when timer ends
@@ -184,9 +196,15 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   };
   
   const handleModeChange = (mode: TimerMode) => {
-    if (!isActive) {
-      setActiveMode(mode);
+    // Stop any running timer before changing mode
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
+    
+    setIsActive(false);
+    setActiveMode(mode);
+    setTimeLeft(mode.duration);
   };
   
   const handleStartStudying = () => {
@@ -324,13 +342,13 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
             
             <div className="mt-4">
               <div className="text-sm font-medium flex justify-between mb-2">
-                <span>Session {Math.ceil(currentSession / 2)} of 4</span>
+                <span>Cycle {Math.floor(currentSession / 2) + 1} of 4</span>
                 <span>{currentSession > 0 ? `${Math.floor(totalSessionTime / 60)} min total` : ''}</span>
               </div>
               <div className="w-full bg-[#F5F5F7] h-2 rounded-full">
                 <div 
                   className="bg-secondary h-2 rounded-full transition-all" 
-                  style={{ width: `${Math.min((currentSession / 8) * 100, 100)}%` }}
+                  style={{ width: `${Math.min(((Math.floor(currentSession / 2)) / 4) * 100, 100)}%` }}
                 ></div>
               </div>
             </div>
