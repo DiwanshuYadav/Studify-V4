@@ -11,6 +11,7 @@ interface AppContextProps {
   messages: Message[];
   studyGroups: StudyGroup[];
   posts: Post[];
+  timerSessions: TimerSession[];
   todayStudyTime: number;
   tasksCompleted: number;
   notesToday: number;
@@ -31,6 +32,8 @@ interface AppContextProps {
   leaveStudyGroup: (groupId: number) => void;
   addPost: (post: Omit<Post, "id" | "timestamp">) => void;
   likePost: (postId: number) => void;
+  createTimerSession: (session: Omit<TimerSession, "id" | "userId">) => void;
+  updateTimerSession: (id: number, session: Partial<TimerSession>) => void;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -43,6 +46,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [messages, setMessages] = useLocalStorage<Message[]>("studify-messages", SAMPLE_MESSAGES);
   const [studyGroups, setStudyGroups] = useLocalStorage<StudyGroup[]>("studify-study-groups", SAMPLE_STUDY_GROUPS);
   const [posts, setPosts] = useLocalStorage<Post[]>("studify-posts", SAMPLE_POSTS);
+  const [timerSessions, setTimerSessions] = useLocalStorage<TimerSession[]>("studify-timer-sessions", SAMPLE_TIMER_SESSIONS);
   
   // Calculated stats
   const [todayStudyTime, setTodayStudyTime] = useState<number>(165); // 2h 45m in minutes
@@ -203,6 +207,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })
     );
   };
+  
+  // Timer operations
+  const createTimerSession = (session: Omit<TimerSession, "id" | "userId">) => {
+    const newSession: TimerSession = {
+      ...session,
+      id: Date.now(),
+      userId: currentUser.id,
+    };
+    
+    setTodayStudyTime(prev => {
+      // Add study time in minutes if it's a focus session
+      if (session.type === 'focus' && session.completed) {
+        const sessionMinutes = Math.floor(session.duration / 60);
+        return prev + sessionMinutes;
+      }
+      return prev;
+    });
+    
+    setTimerSessions(prev => [...prev, newSession]);
+  };
+  
+  const updateTimerSession = (id: number, sessionData: Partial<TimerSession>) => {
+    setTimerSessions(prev => 
+      prev.map(session => 
+        session.id === id ? { ...session, ...sessionData } : session
+      )
+    );
+  };
 
   return (
     <AppContext.Provider
@@ -214,6 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         messages,
         studyGroups,
         posts,
+        timerSessions,
         todayStudyTime,
         tasksCompleted,
         notesToday,
@@ -234,6 +267,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         leaveStudyGroup,
         addPost,
         likePost,
+        createTimerSession,
+        updateTimerSession,
       }}
     >
       {children}

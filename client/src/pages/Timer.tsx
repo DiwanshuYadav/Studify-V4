@@ -9,12 +9,23 @@ import {
   Tooltip, ResponsiveContainer, BarChart, Bar, Legend,
   PieChart, Pie, Cell
 } from 'recharts';
+import { TimerSession } from '@/lib/types';
+
+interface StudyDataPoint {
+  day: string;
+  hours: number;
+}
+
+interface SessionDataPoint {
+  name: string;
+  value: number;
+}
 
 const Timer = () => {
   const { timerSessions, createTimerSession } = useAppContext();
   
-  const [studyData, setStudyData] = useState<any[]>([]);
-  const [sessionData, setSessionData] = useState<any[]>([]);
+  const [studyData, setStudyData] = useState<StudyDataPoint[]>([]);
+  const [sessionData, setSessionData] = useState<SessionDataPoint[]>([]);
   const [weeklyHours, setWeeklyHours] = useState(0);
   const [totalSessions, setTotalSessions] = useState(0);
   const [dailyAverage, setDailyAverage] = useState(0);
@@ -27,14 +38,14 @@ const Timer = () => {
     
     // Filter recent sessions
     const recentSessions = timerSessions.filter(
-      session => new Date(session.startTime) >= oneWeekAgo
+      (session: TimerSession) => new Date(session.startTime) >= oneWeekAgo
     );
     
     // Calculate total sessions
     setTotalSessions(recentSessions.length);
     
     // Calculate total hours this week
-    const totalMinutes = recentSessions.reduce((acc, session) => {
+    const totalMinutes = recentSessions.reduce((acc: number, session: TimerSession) => {
       return acc + session.duration / 60; // Convert seconds to minutes
     }, 0);
     
@@ -55,7 +66,7 @@ const Timer = () => {
     }, {} as Record<string, number>);
     
     // Group sessions by day
-    recentSessions.forEach(session => {
+    recentSessions.forEach((session: TimerSession) => {
       const sessionDate = new Date(session.startTime);
       const dayOfWeek = format(sessionDate, 'EEE');
       
@@ -89,7 +100,7 @@ const Timer = () => {
       'longBreak': 0
     };
     
-    recentSessions.forEach(session => {
+    recentSessions.forEach((session: TimerSession) => {
       if (session.type in sessionTypes) {
         sessionTypes[session.type as keyof typeof sessionTypes] += session.duration;
       }

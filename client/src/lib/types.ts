@@ -99,6 +99,8 @@ export interface TimerSession {
   startTime: string;
   endTime?: string;
   completed: boolean;
+  notes?: string;
+  taskId?: number;
 }
 
 // Study Stats

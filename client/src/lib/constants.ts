@@ -1,4 +1,4 @@
-import { User, Note, Event, Task, Message, StudyGroup, Post } from './types';
+import { User, Note, Event, Task, Message, StudyGroup, Post, TimerSession } from './types';
 
 // Default user data
 export const DEFAULT_USER: User = {
@@ -346,5 +346,64 @@ export const SAMPLE_POSTS: Post[] = [
     attachment: null,
     likes: [1, 2],
     comments: []
+  }
+];
+
+// Sample timer sessions data
+export const SAMPLE_TIMER_SESSIONS: TimerSession[] = [
+  {
+    id: 1,
+    userId: 0,
+    type: 'focus',
+    duration: 25 * 60, // 25 minutes in seconds
+    startTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    endTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 25 * 60 * 1000).toISOString(),
+    completed: true
+  },
+  {
+    id: 2,
+    userId: 0,
+    type: 'shortBreak',
+    duration: 5 * 60, // 5 minutes in seconds
+    startTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 25 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
+    completed: true
+  },
+  {
+    id: 3,
+    userId: 0,
+    type: 'focus',
+    duration: 25 * 60, // 25 minutes in seconds
+    startTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 55 * 60 * 1000).toISOString(),
+    completed: true
+  },
+  {
+    id: 4,
+    userId: 0,
+    type: 'focus',
+    duration: 25 * 60, // 25 minutes in seconds
+    startTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    endTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000 + 25 * 60 * 1000).toISOString(),
+    completed: true
+  },
+  {
+    id: 5,
+    userId: 0,
+    type: 'longBreak',
+    duration: 15 * 60, // 15 minutes in seconds
+    startTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000 + 25 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000 + 40 * 60 * 1000).toISOString(),
+    completed: true
+  },
+  {
+    id: 6,
+    userId: 0,
+    type: 'focus',
+    duration: 25 * 60, // 25 minutes in seconds
+    startTime: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+    endTime: new Date(Date.now() - 4 * 60 * 60 * 1000 + 25 * 60 * 1000).toISOString(),
+    completed: true,
+    notes: 'Studied for linear algebra test'
   }
 ];
