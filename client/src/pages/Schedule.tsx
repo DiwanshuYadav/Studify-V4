@@ -80,6 +80,25 @@ const Schedule = () => {
       setIsCreateModalOpen(false);
     }
   };
+  
+  const handleOpenEditModal = (event: Event) => {
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
+  };
+  
+  const handleUpdateEvent = () => {
+    if (selectedEvent && selectedEvent.title.trim() && selectedEvent.start) {
+      updateEvent(selectedEvent.id, {
+        title: selectedEvent.title,
+        start: selectedEvent.start,
+        end: selectedEvent.end,
+        type: selectedEvent.type,
+      });
+      
+      setIsEditModalOpen(false);
+      setSelectedEvent(null);
+    }
+  };
 
   // Generate the week view
   const generateWeekDays = () => {
@@ -164,11 +183,15 @@ const Schedule = () => {
                     {getEventsByDay(day).map((event) => (
                       <div 
                         key={event.id} 
-                        className={`p-2 rounded-lg border-l-4 text-sm ${getEventColor(event.type)}`}
+                        className={`p-2 rounded-lg border-l-4 text-sm ${getEventColor(event.type)} cursor-pointer hover:shadow-sm transition-all`}
+                        onClick={() => handleOpenEditModal(event)}
                       >
                         <div className="font-medium truncate">{event.title}</div>
                         <div className="text-xs text-gray-500">
                           {formatEventTime(event.start)}
+                        </div>
+                        <div className="flex justify-end mt-1 -mb-1 text-gray-400">
+                          <i className="fa-solid fa-pen-to-square text-xs"></i>
                         </div>
                       </div>
                     ))}
@@ -202,7 +225,7 @@ const Schedule = () => {
                     <div className="flex space-x-2">
                       <button 
                         className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500"
-                        onClick={() => {}}
+                        onClick={() => handleOpenEditModal(event)}
                       >
                         <i className="fa-solid fa-pen-to-square"></i>
                       </button>
@@ -287,6 +310,76 @@ const Schedule = () => {
               Cancel
             </Button>
             <Button onClick={handleCreateEvent}>Add Event</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Edit Event</DialogTitle>
+          </DialogHeader>
+          {selectedEvent && (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-title">Event Title</Label>
+                <Input 
+                  id="edit-title" 
+                  name="title"
+                  value={selectedEvent.title}
+                  onChange={handleEditInputChange}
+                  placeholder="Event title" 
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-type">Event Type</Label>
+                <select 
+                  id="edit-type"
+                  name="type"
+                  value={selectedEvent.type}
+                  onChange={handleEditInputChange}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="lecture">Lecture</option>
+                  <option value="studyGroup">Study Group</option>
+                  <option value="assignment">Assignment</option>
+                  <option value="meeting">Meeting</option>
+                  <option value="exam">Exam</option>
+                </select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-start">Start Time</Label>
+                <Input 
+                  id="edit-start" 
+                  name="start"
+                  type="datetime-local"
+                  value={selectedEvent.start}
+                  onChange={handleEditInputChange}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-end">End Time (optional)</Label>
+                <Input 
+                  id="edit-end" 
+                  name="end"
+                  type="datetime-local"
+                  value={selectedEvent.end}
+                  onChange={handleEditInputChange}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setSelectedEvent(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateEvent}>Update Event</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
