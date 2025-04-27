@@ -24,49 +24,50 @@ interface SettingsModalProps {
 }
 
 const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
-  const { currentUser, updateUser } = useAppContext();
-  const [settings, setSettings] = useState<ClientSettings>(
-    currentUser.settings || defaultSettings
-  );
+  const { currentUser } = useAppContext();
+  const [settings, setSettings] = useState<ClientSettings>(defaultSettings);
   const [activeTab, setActiveTab] = useState('general');
   const { toast } = useToast();
 
-  // Initialize settings from user profile on component mount and when user changes
+  // Load settings from localStorage on component mount
   useEffect(() => {
-    if (currentUser?.settings) {
-      setSettings(currentUser.settings);
-      
-      // Apply theme immediately
-      const userTheme = currentUser.settings.theme;
-      if (userTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else if (userTheme === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else if (userTheme === 'system') {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    const savedSettings = localStorage.getItem('userSettings');
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        setSettings(parsedSettings);
+        
+        // Apply theme immediately
+        if (parsedSettings.theme === 'dark') {
           document.documentElement.classList.add('dark');
-        } else {
+        } else if (parsedSettings.theme === 'light') {
           document.documentElement.classList.remove('dark');
+        } else if (parsedSettings.theme === 'system') {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
         }
-      }
-
-      // Apply font size
-      const fontSize = currentUser.settings.fontSize;
-      if (fontSize === 'small') {
-        document.documentElement.style.fontSize = '14px';
-      } else if (fontSize === 'medium') {
-        document.documentElement.style.fontSize = '16px';
-      } else if (fontSize === 'large') {
-        document.documentElement.style.fontSize = '18px';
+        
+        // Apply font size immediately
+        const fontSize = parsedSettings.fontSize;
+        if (fontSize === 'small') {
+          document.documentElement.style.fontSize = '14px';
+        } else if (fontSize === 'medium') {
+          document.documentElement.style.fontSize = '16px';
+        } else if (fontSize === 'large') {
+          document.documentElement.style.fontSize = '18px';
+        }
+      } catch (error) {
+        console.error('Error parsing settings:', error);
       }
     }
-  }, [currentUser]);
+  }, []);
 
   const handleSaveSettings = () => {
-    // Save settings to user profile
-    updateUser({ 
-      settings: settings 
-    });
+    // Save settings to localStorage
+    localStorage.setItem('userSettings', JSON.stringify(settings));
     
     toast({
       title: "Settings saved",

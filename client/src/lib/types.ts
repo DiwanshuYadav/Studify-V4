@@ -10,7 +10,6 @@ export interface User {
   createdAt: string;
   followers: number[];
   following: number[];
-  settings: ClientSettings;
 }
 
 // Note Types

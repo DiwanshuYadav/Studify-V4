@@ -11,15 +11,7 @@ export const DEFAULT_USER: User = {
   bio: 'Studying Computer Science with a focus on machine learning and AI.',
   createdAt: new Date().toISOString(),
   followers: [1, 2, 3],
-  following: [1, 2, 4, 5],
-  settings: {
-    theme: 'light',
-    notificationsEnabled: true,
-    soundsEnabled: true,
-    autoJoinCalls: false,
-    privacy: 'public',
-    fontSize: 'medium'
-  }
+  following: [1, 2, 4, 5]
 };
 
 // Sample notes data

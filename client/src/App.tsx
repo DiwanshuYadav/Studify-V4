@@ -15,6 +15,8 @@ import Profile from "./pages/Profile";
 import ErrorBoundary from "./components/ErrorBoundary";
 import FloatingChat from "./components/chat/FloatingChat";
 import { AppProvider } from "./context/AppContext";
+import { useEffect } from "react";
+import { ClientSettings } from "./lib/types";
 
 function Router() {
   return (
@@ -73,9 +75,65 @@ function Router() {
   );
 }
 
+function ThemeInitializer() {
+  useEffect(() => {
+    // Initialize settings if they don't exist
+    const savedSettings = localStorage.getItem('userSettings');
+    if (!savedSettings) {
+      const defaultSettings: ClientSettings = {
+        theme: 'light',
+        notificationsEnabled: true,
+        soundsEnabled: true,
+        autoJoinCalls: false,
+        privacy: 'public',
+        fontSize: 'medium',
+      };
+      localStorage.setItem('userSettings', JSON.stringify(defaultSettings));
+      
+      // Apply default theme
+      document.documentElement.classList.remove('dark');
+      
+      // Apply default font size
+      document.documentElement.style.fontSize = '16px';
+    } else {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        
+        // Apply saved theme
+        if (parsedSettings.theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else if (parsedSettings.theme === 'light') {
+          document.documentElement.classList.remove('dark');
+        } else if (parsedSettings.theme === 'system') {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        
+        // Apply saved font size
+        const fontSize = parsedSettings.fontSize;
+        if (fontSize === 'small') {
+          document.documentElement.style.fontSize = '14px';
+        } else if (fontSize === 'medium') {
+          document.documentElement.style.fontSize = '16px';
+        } else if (fontSize === 'large') {
+          document.documentElement.style.fontSize = '18px';
+        }
+      } catch (error) {
+        console.error('Error parsing settings:', error);
+      }
+    }
+  }, []);
+
+  return null;
+}
+
 function App() {
   return (
     <ErrorBoundary>
+      <ThemeInitializer />
       <AppProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>

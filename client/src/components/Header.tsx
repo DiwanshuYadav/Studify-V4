@@ -309,6 +309,38 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                     <button 
                       className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] text-sm transition-apple flex items-center"
                       onClick={() => {
+                        // Toggle theme between light and dark
+                        const savedSettings = localStorage.getItem('userSettings');
+                        if (savedSettings) {
+                          try {
+                            const settings = JSON.parse(savedSettings);
+                            const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+                            
+                            settings.theme = newTheme;
+                            localStorage.setItem('userSettings', JSON.stringify(settings));
+                            
+                            if (newTheme === 'dark') {
+                              document.documentElement.classList.add('dark');
+                            } else {
+                              document.documentElement.classList.remove('dark');
+                            }
+                            
+                            toast({
+                              title: `${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} theme activated`,
+                              description: "Your theme preference has been updated",
+                            });
+                          } catch (error) {
+                            console.error('Error toggling theme:', error);
+                          }
+                        }
+                        setShowSettings(false);
+                      }}
+                    >
+                      <i className="fa-solid fa-circle-half-stroke mr-2"></i> Toggle Theme
+                    </button>
+                    <button 
+                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] text-sm transition-apple flex items-center"
+                      onClick={() => {
                         setShowSettings(false);
                         setShowSettingsModal(true);
                       }}
