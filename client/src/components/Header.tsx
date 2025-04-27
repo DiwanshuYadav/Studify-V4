@@ -172,7 +172,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         onOpenChange={setShowSettingsModal} 
       />
       
-      <header className="bg-white sticky top-0 p-4 border-b border-[#F5F5F7] z-20 shadow-sm">
+      <header className="bg-white dark:bg-[#1D1D1F] sticky top-0 p-4 border-b border-[#F5F5F7] dark:border-[#2D2D2F] z-20 shadow-sm">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center">
             <h1 className="text-xl font-semibold">{title}</h1>
@@ -184,7 +184,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                 <input 
                   type="text" 
                   placeholder="Search notes, events, tasks..." 
-                  className="px-4 py-2 rounded-full bg-[#F5F5F7] border-none focus:ring-2 focus:ring-secondary focus:outline-none w-48 lg:w-64 transition-apple" 
+                  className="px-4 py-2 rounded-full bg-[#F5F5F7] dark:bg-[#2D2D2F] dark:text-white border-none focus:ring-2 focus:ring-secondary focus:outline-none w-48 lg:w-64 transition-apple" 
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -197,23 +197,23 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
               
               {/* Search Results Dropdown */}
               {showSearchResults && searchResults.length > 0 && (
-                <div className="absolute top-full mt-2 right-0 w-72 bg-white rounded-xl shadow-lg overflow-hidden z-30">
+                <div className="absolute top-full mt-2 right-0 w-72 bg-white dark:bg-[#2D2D2F] dark:text-white rounded-xl shadow-lg overflow-hidden z-30">
                   <div className="p-2">
                     <div className="text-sm font-medium text-gray-400 px-3 py-2">Search Results</div>
                     <div className="space-y-1">
                       {searchResults.map(result => (
                         <div 
                           key={`${result.type}-${result.id}`}
-                          className="flex items-center p-2 rounded-lg hover:bg-[#F5F5F7] cursor-pointer"
+                          className="flex items-center p-2 rounded-lg hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] cursor-pointer"
                           onClick={() => handleSearchItemClick(result)}
                         >
-                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mr-3">
                             <i className={`fa-solid ${result.icon || 'fa-file'} text-secondary`}></i>
                           </div>
                           <div>
                             <div className="text-sm font-medium">{result.title}</div>
                             {result.subtitle && (
-                              <div className="text-xs text-gray-500">{result.subtitle}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">{result.subtitle}</div>
                             )}
                           </div>
                         </div>
@@ -227,7 +227,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
             {/* Notifications */}
             <div className="relative" ref={notificationsRef}>
               <button 
-                className="p-2 rounded-full text-gray-500 hover:bg-[#F5F5F7] transition-apple relative"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] transition-apple relative"
                 onClick={() => setShowNotifications(!showNotifications)}
               >
                 <i className="fa-solid fa-bell"></i>
@@ -240,13 +240,13 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
               
               {/* Notifications Dropdown */}
               {showNotifications && (
-                <div className="absolute top-full mt-2 right-0 w-80 bg-white rounded-xl shadow-lg overflow-hidden z-30">
-                  <div className="p-3 bg-white">
-                    <div className="flex items-center justify-between pb-2 border-b">
+                <div className="absolute top-full mt-2 right-0 w-80 bg-white dark:bg-[#2D2D2F] dark:text-white rounded-xl shadow-lg overflow-hidden z-30">
+                  <div className="p-3 bg-white dark:bg-[#2D2D2F]">
+                    <div className="flex items-center justify-between pb-2 border-b dark:border-gray-700">
                       <div className="text-sm font-medium">Notifications</div>
                       {unreadNotificationsCount > 0 && (
                         <button 
-                          className="text-xs text-secondary hover:text-blue-700"
+                          className="text-xs text-secondary hover:text-blue-700 dark:hover:text-blue-400"
                           onClick={markAllNotificationsAsRead}
                         >
                           Mark all as read
@@ -256,13 +256,13 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                     
                     <div className="max-h-80 overflow-y-auto">
                       {notifications.length === 0 ? (
-                        <div className="py-4 text-center text-gray-500">No notifications</div>
+                        <div className="py-4 text-center text-gray-500 dark:text-gray-400">No notifications</div>
                       ) : (
                         <div className="space-y-2 mt-2">
                           {notifications.map((notification) => (
                             <div 
                               key={notification.id}
-                              className={`p-2 rounded-lg hover:bg-[#F5F5F7] cursor-pointer transition-all ${!notification.read ? 'bg-blue-50' : ''}`}
+                              className={`p-2 rounded-lg hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] cursor-pointer transition-all ${!notification.read ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
                               onClick={() => {
                                 setNotifications(prev => 
                                   prev.map(n => n.id === notification.id ? {...n, read: true} : n)
@@ -271,9 +271,9 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                             >
                               <div className="flex justify-between">
                                 <div className="font-medium text-sm">{notification.title}</div>
-                                <div className="text-xs text-gray-500">{notification.time}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</div>
                               </div>
-                              <div className="text-xs text-gray-600 mt-1">{notification.message}</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">{notification.message}</div>
                             </div>
                           ))}
                         </div>
@@ -287,7 +287,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
             {/* Settings */}
             <div className="relative" ref={settingsRef}>
               <button 
-                className="p-2 rounded-full text-gray-500 hover:bg-[#F5F5F7] transition-apple"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] transition-apple"
                 onClick={() => setShowSettings(!showSettings)}
               >
                 <i className="fa-solid fa-cog"></i>
@@ -295,10 +295,10 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
               
               {/* Settings Dropdown */}
               {showSettings && (
-                <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg overflow-hidden z-30">
+                <div className="absolute top-full mt-2 right-0 w-48 bg-white dark:bg-[#2D2D2F] dark:text-white rounded-xl shadow-lg overflow-hidden z-30">
                   <div className="py-2">
                     <button 
-                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] text-sm transition-apple flex items-center"
+                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] text-sm transition-apple flex items-center"
                       onClick={() => {
                         setShowSettings(false);
                         navigate('/profile');
@@ -307,7 +307,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                       <i className="fa-solid fa-user mr-2"></i> Profile
                     </button>
                     <button 
-                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] text-sm transition-apple flex items-center"
+                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] text-sm transition-apple flex items-center"
                       onClick={() => {
                         // Toggle theme between light and dark
                         const savedSettings = localStorage.getItem('userSettings');
@@ -339,7 +339,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                       <i className="fa-solid fa-circle-half-stroke mr-2"></i> Toggle Theme
                     </button>
                     <button 
-                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] text-sm transition-apple flex items-center"
+                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] text-sm transition-apple flex items-center"
                       onClick={() => {
                         setShowSettings(false);
                         setShowSettingsModal(true);
@@ -348,7 +348,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                       <i className="fa-solid fa-cog mr-2"></i> All Settings
                     </button>
                     <button 
-                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] text-sm text-red-500 transition-apple flex items-center"
+                      className="w-full text-left px-4 py-2 hover:bg-[#F5F5F7] dark:hover:bg-[#3D3D3F] text-sm text-red-500 transition-apple flex items-center"
                       onClick={() => {
                         // Handle logout
                         localStorage.removeItem('currentUser');
