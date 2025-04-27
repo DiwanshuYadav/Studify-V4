@@ -49,8 +49,7 @@ const Messages = () => {
       addMessage({
         senderId,
         receiverId: currentUser.id,
-        content: message,
-        timestamp: timestamp || new Date().toISOString()
+        content: message
       });
     });
     
@@ -204,15 +203,12 @@ const Messages = () => {
   }, [currentConversation]);
 
   const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const timestamp = new Date().toISOString();
-      
+    if (newMessage.trim()) {      
       // Add message locally
       addMessage({
         senderId: currentUser.id,
         receiverId: activeContactId,
-        content: newMessage,
-        timestamp
+        content: newMessage
       });
       
       // Send message via WebSocket

@@ -43,8 +43,7 @@ const FloatingChat = () => {
       addMessage({
         senderId,
         receiverId: currentUser.id,
-        content: message,
-        timestamp: timestamp || new Date().toISOString()
+        content: message
       });
     });
     
@@ -112,8 +111,7 @@ const FloatingChat = () => {
       addMessage({
         senderId: currentUser.id,
         receiverId: activeChatUserId,
-        content: newMessage,
-        timestamp
+        content: newMessage
       });
       
       // Send message via WebSocket
