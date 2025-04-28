@@ -19,11 +19,12 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   const { toast } = useToast();
   const { addTask, currentUser } = useAppContext();
   
-  // Timer modes with shorter durations for testing
+  // Timer modes with user-friendly durations and options
   const timerModes: TimerMode[] = [
-    { name: 'shortBreak', label: 'Short Break', duration: 10, color: 'hover:bg-blue-50 hover:text-secondary' },
-    { name: 'focus', label: 'Focus', duration: 20, color: 'bg-blue-50 text-secondary' },
-    { name: 'longBreak', label: 'Long Break', duration: 15, color: 'hover:bg-blue-50 hover:text-secondary' },
+    { name: 'shortBreak', label: 'Short Break', duration: 5 * 60, color: 'hover:bg-blue-50 hover:text-secondary' },
+    { name: 'focus', label: 'Focus', duration: 25 * 60, color: 'bg-blue-50 text-secondary' },
+    { name: 'longBreak', label: 'Long Break', duration: 15 * 60, color: 'hover:bg-blue-50 hover:text-secondary' },
+    { name: 'custom', label: 'Custom', duration: 0, color: 'hover:bg-blue-50 hover:text-secondary' },
   ];
   
   const [activeMode, setActiveMode] = useState<TimerMode>(timerModes[1]);
@@ -37,6 +38,7 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   const [notes, setNotes] = useState('');
   const [focusTask, setFocusTask] = useState('');
   const [completedSessions, setCompletedSessions] = useState<Array<{ type: string, duration: number }>>([]);
+  const [customMinutes, setCustomMinutes] = useState(25);
   
   // Using a ref to track timer interval
   const timerRef = useRef<number | null>(null);
@@ -46,10 +48,12 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   
   // When timer updates, calculate progress
   useEffect(() => {
-    // Update progress based on time left - reverse the calculation to show correct visual progress
-    if (timeLeft !== undefined && activeMode.duration !== undefined) {
+    // Only calculate progress if duration is valid and > 0
+    if (activeMode.duration && activeMode.duration > 0 && typeof timeLeft === 'number') {
       const progressValue = circumference - ((timeLeft / activeMode.duration) * circumference);
       setProgress(progressValue);
+    } else {
+      setProgress(0);
     }
   }, [timeLeft, activeMode.duration, circumference]);
   
@@ -149,6 +153,16 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
       return () => clearTimeout(timeoutId);
     }
   }, [timeLeft, isActive, activeMode, currentSession, focusTask, onSessionComplete, sessionStartTime, totalSessionTime, timerModes, addTask]);
+  
+  // For custom mode, ensure a valid duration is always set
+  useEffect(() => {
+    if (activeMode.name === 'custom') {
+      if (!activeMode.duration || activeMode.duration <= 0) {
+        setActiveMode({ ...activeMode, duration: customMinutes * 60 });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMode.name, customMinutes]);
   
   const startTimer = () => {
     if (!isActive) {
@@ -301,20 +315,21 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
                     stroke="#F5F5F7" 
                     strokeWidth="5" 
                   />
-                  
                   {/* Progress circle */}
-                  <circle 
-                    className="timer-knob" 
-                    cx="50" 
-                    cy="50" 
-                    r="45" 
-                    fill="none" 
-                    stroke="#0A84FF" 
-                    strokeWidth="5" 
-                    strokeDasharray={circumference} 
-                    strokeDashoffset={progress} 
-                    strokeLinecap="round"
-                  />
+                  {activeMode.duration > 0 && !isNaN(progress) ? (
+                    <circle 
+                      className="timer-knob" 
+                      cx="50" 
+                      cy="50" 
+                      r="45" 
+                      fill="none" 
+                      stroke="#0A84FF" 
+                      strokeWidth="5" 
+                      strokeDasharray={circumference} 
+                      strokeDashoffset={progress} 
+                      strokeLinecap="round"
+                    />
+                  ) : null}
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-3xl font-bold" id="timer-display">{formatTime(timeLeft)}</span>
@@ -348,11 +363,46 @@ const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
               </button>
             </div>
             
+            <div className="flex gap-2 mt-4">
+              {timerModes.map((mode) => (
+                <Button
+                  key={mode.name}
+                  className={`rounded-full px-4 py-1 text-sm font-semibold transition ${activeMode.name === mode.name ? mode.color : ''}`}
+                  onClick={() => {
+                    setActiveMode(mode.name === 'custom' ? { ...mode, duration: customMinutes * 60 } : mode);
+                  }}
+                  variant={activeMode.name === mode.name ? 'default' : 'outline'}
+                >
+                  {mode.label}
+                </Button>
+              ))}
+            </div>
+            {activeMode.name === 'custom' && (
+              <div className="mt-2 flex items-center gap-2">
+                <span>Custom minutes:</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={120}
+                  value={customMinutes}
+                  onChange={e => setCustomMinutes(Number(e.target.value))}
+                  className="border rounded px-2 py-1 w-16 text-center"
+                />
+                <Button
+                  onClick={() => setActiveMode({ ...activeMode, duration: customMinutes * 60 })}
+                  size="sm"
+                  variant="secondary"
+                >
+                  Set
+                </Button>
+              </div>
+            )}
+            
             <div className="mt-6 grid grid-cols-3 gap-2 text-center">
               {timerModes.map((mode) => (
                 <div 
                   key={mode.name}
-                  className={`p-2 rounded-xl ${activeMode.name === mode.name ? 'bg-blue-50 text-secondary' : 'bg-[#F5F5F7] hover:bg-blue-50 hover:text-secondary'} cursor-pointer transition-apple ${isActive ? 'opacity-50 pointer-events-none' : ''}`}
+                  className={`p-2 rounded-xl ${activeMode.name === mode.name ? mode.color : 'bg-[#F5F5F7] hover:bg-blue-50 hover:text-secondary'} cursor-pointer transition-apple ${isActive ? 'opacity-50 pointer-events-none' : ''}`}
                   onClick={() => handleModeChange(mode)}
                 >
                   <p className="text-sm font-medium">{mode.label}</p>
