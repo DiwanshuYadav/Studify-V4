@@ -42,12 +42,6 @@ npm run build
 npm start
 ```
 
-### Environment Variables
-Create a `.env` file in the root:
-```
-DATABASE_URL=your_database_url
-```
-
 ## Deployment
 - Supports modern deployment platforms (Vercel, Netlify, Railway, Render, etc.)
 
@@ -58,4 +52,5 @@ Pull requests are welcome! For major changes, open an issue first.
 [MIT](LICENSE)
 
 ---
-Made with ❤️ by [Your Name]
+Made with ❤️ by Diwanshu Yadav, Arin Dixit, Aryan Agrawal, Pankaj Garg
+
