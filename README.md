@@ -42,6 +42,7 @@ npm run build
 npm start
 ```
 
+
 ## Deployment
 - Supports modern deployment platforms (Vercel, Netlify, Railway, Render, etc.)
 
@@ -53,4 +54,3 @@ Pull requests are welcome! For major changes, open an issue first.
 
 ---
 Made with ❤️ by Diwanshu Yadav, Arin Dixit, Aryan Agrawal, Pankaj Garg
-
